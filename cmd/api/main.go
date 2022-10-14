@@ -7,7 +7,6 @@ import (
 	"os"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/cors"
 	"github.com/vmw-pso/toolkit"
 )
 
@@ -41,32 +40,16 @@ type server struct {
 }
 
 func newServer() *server {
-	mux := chi.NewMux()
-
-	mux.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: true,
-		MaxAge:           300,
-	}))
-
 	tools := toolkit.Tools{}
 
 	srv := &server{
-		mux:   mux,
 		tools: tools,
 	}
-	srv.routes()
+	srv.mux = srv.routes()
 
 	return srv
 }
 
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.mux.ServeHTTP(w, r)
-}
-
-func (s *server) routes() {
-	s.mux.Post("/handle", s.handleRequest())
 }
